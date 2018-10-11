@@ -11,7 +11,7 @@ import csv
 import pytz
 from collections import Counter
 from keboola import docker
-from datetime import datetime
+import datetime
 from dateutil.relativedelta import relativedelta
 
 DEFAULT_DEL = ','
@@ -61,7 +61,8 @@ class KBCEnvHandler:
             if isinstance(par,list):
                 missing_subset = self._get_par_missing_fields(par)
                 missing_fields.extend(missing_subset)
-                is_present = not missing_subset
+                if not missing_subset:
+                    is_present = True
                     
             elif self.cfg_params.get(par):                
                 is_present = True
@@ -203,7 +204,7 @@ class KBCEnvHandler:
         'today'
         '''
         
-        TODAY = datetime.date.today(tz)
+        TODAY = datetime.datetime.now(tz)
         splitted = str_days_ago.split()
         if len(splitted) == 1 and splitted[0].lower() == 'today':
             return str(TODAY.isoformat())

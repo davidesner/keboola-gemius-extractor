@@ -89,6 +89,7 @@
 						"enum": [
 							"daily",
 							"weekly",
+							"monthly",
 							"all"
 						],
 						"type": "string",

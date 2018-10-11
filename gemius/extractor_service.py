@@ -57,7 +57,7 @@ class ExtractorService():
 
         for country in country_list:
             file_path = os.path.join(
-                output_folder_path, 'stats' + '_' + str(file_uid) + '_' + country + '.csv')
+                output_folder_path, 'stats' + '-' + str(file_uid) + '-' + country + '.csv')
 
             with open(file_path, 'w+', newline='') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
@@ -105,7 +105,7 @@ class ExtractorService():
 
         for country in country_list:
             file_path = os.path.join(
-                output_folder_path, endpoint_name + '_' + str(file_uid) + country + '.csv')
+                output_folder_path, endpoint_name + '-' + str(file_uid) + country + '.csv')
 
             with open(file_path, 'w+', newline='') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
@@ -170,11 +170,11 @@ class ExtractorService():
             traits = defaults = answers = False
             # res file paths
             traits_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '_' + 'traits' + '_' + file_uid + '_' + country + '.csv')
+                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'traits' + '-' + file_uid + '-' + country + '.csv')
             answers_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '_' + 'answers' + '_' + file_uid + '_' + country + '.csv')
+                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'answers' + '-' + file_uid + '-' + country + '.csv')
             defaults_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '_' + 'defaults' + '_' + file_uid + '_' + country + '.csv')
+                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'defaults' + '-' + file_uid + '-' + country + '.csv')
 
             # res file writers
             traits_writer = csv.writer(open(traits_path, 'w+', newline=''), delimiter=',',

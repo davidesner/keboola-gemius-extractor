@@ -1,0 +1,142 @@
+{
+	"type": "object",
+	"title": "Gemius extractor configuration",
+	"required": [
+		"user",
+		"#pass",
+		"period_from",
+		"period_to",
+		"datasets",
+		"relative_period",
+		"bucket"
+	],
+	"properties": {
+		"user": {
+			"type": "string",
+			"title": "Gemius user name",
+			"propertyOrder": 100
+		},
+		"#pass": {
+			"type": "string",
+			"title": "Gemius password",
+			"format": "password",
+			"propertyOrder": 200
+		},
+		"period_from": {
+			"type": "string",
+			"format": "date",
+			"title": "Period from date",
+			"propertyOrder": 300
+		},
+		"period_to": {
+			"type": "string",
+			"format": "date",
+			"title": "Period todate",
+			"propertyOrder": 400
+		},
+
+		"relative_period": {
+			"type": "string",
+			"title": "Relative period from now (utc)",
+			"description": "Relative period in format: '5 hours ago', 'yesterday','3 days ago', '4 months ago', '2 years ago', 'today'",
+			"propertyOrder": 450
+		},
+		"bucket": {
+			"type": "string",
+			"title": "Bucket suffix",
+			"description": "Bucket suffix to be added to default bucket, if empty only default name is used",
+			"propertyOrder": 460
+		},
+		"datasets": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"title": "Dataset",
+				"required": [
+					"dataset_type",
+					"period_type",
+					"filters"
+				],
+				"properties": {
+					"dataset_type": {
+						"enum": [
+							"stats",
+							"geos",
+							"platforms",
+							"metrics",
+							"nodes",
+							"demography",
+							"trees"
+						],
+						"options": {
+							"enum_titles": [
+								"STATS (Fact)",
+								"GEOS",
+								"PLATFORMS",
+								"METRICS",
+								"NODES",
+								"DEMOGRAPHY",
+								"TREES"
+							]
+						},
+						"type": "string",
+						"title": "Dataset type",
+						"description": "Type of dataset to download. Either one of the dimensions or the fact table stats.",
+						"default": "stats",
+						"propertyOrder": 1000
+					},
+					"period_type": {
+						"enum": [
+							"daily",
+							"weekly",
+							"all"
+						],
+						"type": "string",
+						"title": "Type of period.",
+						"description": "period granularity, ie daily, weekly, monthly or other.",
+						"default": "daily",
+						"propertyOrder": 2000
+					},
+					"filters": {
+						"type": "array",
+						"format": "grid",
+						"items": {
+							"format": "grid",
+							"type": "object",
+							"title": "Filter",
+							"required": [
+								"filter",
+								"source_table"
+							],
+							"properties": {
+								"filter": {
+									"enum": [
+										"geos",
+										"platforms",
+										"metrics",
+										"nodes",
+										"demography"
+									],
+									"type": "string",
+									"title": "Filter Type",
+									"description": "Type of filter",
+									"default": "stats",
+									"propertyOrder": 1000
+								},
+								"source_table": {
+									"type": "string",
+									"title": "Source table",
+									"description": "Name of the input mapping containing values or actual values in form [val1,val2]",
+									"propertyOrder": 2000
+								}
+							}
+						},
+						"title": "Additional filters",
+						"propertyOrder": 3000
+					}
+				}
+			},
+			"title": "Datasets / tables to download"
+		}
+	}
+}

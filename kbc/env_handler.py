@@ -225,8 +225,8 @@ class KBCEnvHandler:
             return str(date.isoformat())
         elif splitted[1].lower() in ['yrs', 'yr', 'years', 'year', 'y']:
             date = TODAY - relativedelta(years=int(splitted[0]))
-            return str(date.isoformat())
+            return date.isoformat()
         else:
-            return "Wrong Argument format"
+            raise ValueError('Invalid relative period!')
 
 

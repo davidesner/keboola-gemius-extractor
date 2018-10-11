@@ -64,11 +64,18 @@ class ExtractorService():
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 self._get_n_write_ds_in_period_in_country(
                     'stats', writer,  periods, country, append_headers, [country], **filter_params)
-
+                
+               
+            
+            #remove if empty
+            if os.stat(out_file).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': 'stats',
                                'name': os.path.basename(out_file.name),
                                'pkey': STATS_PKEY}]
+            else:
+                os.remove(out_file)
+        
         return res_files
 
     def get_periods_in_interval(self, begin=None, end=None, period_type='daily', country_list=None):
@@ -110,6 +117,15 @@ class ExtractorService():
                                'type': endpoint_name,
                                'name': os.path.basename(out_file.name),
                                'pkey': DEFAULT_DS_PKEY}]
+            #remove if empty
+            if os.stat(out_file).st_size > 0:
+                res_files += [{'full_path': file_path,
+                               'type': 'stats',
+                               'name': os.path.basename(out_file.name),
+                               'pkey': STATS_PKEY}]
+            else:
+                os.remove(out_file)
+
         return res_files
 
     def get_n_save_demography(self, output_folder_path, file_uid, periods):
@@ -146,6 +162,7 @@ class ExtractorService():
         '''
 
         write_header = True
+        res_files = []
         for period in periods.get(country):
             res = self.client.get_dataset_generic(
                 ENDPOINT_DEMOGRAPHY, period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], country, output_type='csv')
@@ -159,7 +176,6 @@ class ExtractorService():
             defaults_path = os.path.join(
                 output_folder_path, ENDPOINT_DEMOGRAPHY + '_' + 'defaults' + '_' + file_uid + '_' + country + '.csv')
 
-            
             # res file writers
             traits_writer = csv.writer(open(traits_path, 'w+', newline=''), delimiter=',',
                                        quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -170,6 +186,7 @@ class ExtractorService():
 
             # split file by empty line
             dem_files = res.text.split(os.linesep + os.linesep)
+            
             for line in dem_files:
                 if DEMOGRAPHY_TRAITS_HEADER in line:
                     traits = True
@@ -190,8 +207,6 @@ class ExtractorService():
             write_header = False
 
             del traits_writer, answers_writer, defaults_writer
-
-            res_files = []
 
             # cleanup empty files, add metadata
             if traits:

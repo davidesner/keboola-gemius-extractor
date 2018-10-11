@@ -64,10 +64,17 @@ class Component(KBCEnvHandler):
             index += 1
             periods = gemius_srv.get_periods_in_interval(
                 from_date, to_date, p_type)
-            if not periods:
+
+            countries_no_period = [
+                c for c in periods.keys() if len(periods[c]) == 0]
+
+            if not periods or len(countries_no_period) == len(periods.values()):
                 logging.warning(
                     'No periods [from:%s,to:%s] type:%s', from_date, to_date, p_type)
                 continue
+            elif len(countries_no_period) > 0:
+                logging.warning(
+                    'Some countries contain no specified periods [from:%s,to:%s] type:%s', from_date, to_date, p_type)
 
             res = self.retrieve_n_save_dataset(
                 dataset, periods, index, gemius_srv)
@@ -75,16 +82,22 @@ class Component(KBCEnvHandler):
             result_files.extend(res)
 
         logging.info('Building manifest files..')
-        self._process_results(result_files, '')
+        self._process_results(result_files, self.cfg_params.get('bucket'))
 
         logging.info('Extraction finished sucessfully!')
 
     def _process_results(self, res_files, output_bucket):
         for res in res_files:
+            dest_bucket = 'in-c-esnerda-ex-gemius-' + str(self.kbc_config_id)
+            if output_bucket:
+                suffix = '-' + output_bucket
+            else:
+                suffix = ''
+
             # build manifest
             self.configuration.write_table_manifest(
                 file_name=res['full_path'],
-                destination=output_bucket + '.' + res['type'],
+                destination=dest_bucket + suffix + '.' + res['type'],
                 primary_key=res['pkey'],
                 incremental=True)
 
@@ -96,6 +109,7 @@ class Component(KBCEnvHandler):
         else:
             res = gemius_srv.get_n_save_dataset_in_available_periods(
                 dataset_type, self.tables_out_path, index, periods)
+
         return res
 
     def retrieve_n_save_stats(self, dataset, periods, index, service):

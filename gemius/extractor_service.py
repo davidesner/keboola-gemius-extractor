@@ -68,7 +68,7 @@ class ExtractorService():
                
             
             #remove if empty
-            if os.stat(out_file).st_size > 0:
+            if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': 'stats',
                                'name': os.path.basename(out_file.name),
@@ -118,7 +118,7 @@ class ExtractorService():
                                'name': os.path.basename(out_file.name),
                                'pkey': DEFAULT_DS_PKEY}]
             #remove if empty
-            if os.stat(out_file).st_size > 0:
+            if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': 'stats',
                                'name': os.path.basename(out_file.name),

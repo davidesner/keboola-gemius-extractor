@@ -88,7 +88,7 @@ class Component(KBCEnvHandler):
 
     def _process_results(self, res_files, output_bucket):
         for res in res_files:
-            dest_bucket = 'in-c-esnerda-ex-gemius-' + str(self.kbc_config_id)
+            dest_bucket = 'in.c-esnerda-ex-gemius-' + str(self.kbc_config_id)
             if output_bucket:
                 suffix = '-' + output_bucket
             else:

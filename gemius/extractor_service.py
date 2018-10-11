@@ -21,9 +21,9 @@ DEMOGRAPHY_ASNWERS_HEADER = 'id\tname\ttrait_id'
 DEMOGRAPHY_DFTS_HEADER = 'max\tmin\ttrait_id'
 
 DEFAULT_DS_PKEY = ['id', 'name', 'country',
-                   KEY_PERIOD_BEGIN, KEY_PERIOD_END, KEY_PERIOD_TYPE]
+                   'begin_period', 'end_period', 'period_type']
 STATS_PKEY = ['geo_id', 'node_id', 'platform_id', 'target_group',
-              KEY_PERIOD_BEGIN, KEY_PERIOD_END, KEY_PERIOD_TYPE]
+              'begin_period', 'end_period', 'period_type']
 
 
 class ExtractorService():

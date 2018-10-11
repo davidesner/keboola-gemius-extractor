@@ -113,16 +113,12 @@ class ExtractorService():
                 self._get_n_write_ds_in_period_in_country(
                     endpoint_name, writer,  periods, country, append_headers, [country])
 
-                res_files += [{'full_path': file_path,
-                               'type': endpoint_name,
-                               'name': os.path.basename(out_file.name),
-                               'pkey': DEFAULT_DS_PKEY}]
             #remove if empty
             if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': 'stats',
                                'name': os.path.basename(out_file.name),
-                               'pkey': STATS_PKEY}]
+                               'pkey': DEFAULT_DS_PKEY}]
             else:
                 os.remove(out_file)
 

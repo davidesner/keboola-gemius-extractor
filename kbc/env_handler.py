@@ -22,7 +22,7 @@ class KBCEnvHandler:
     def __init__(self, mandatory_params, data_path=None):
         # fetch data folder from ENV by default
         if not data_path:
-            data_path = os.environ['KBC_DATADIR']
+            data_path = os.environ.get('KBC_DATADIR')
 
         self.kbc_config_id = os.environ.get('KBC_CONFIGID')
         

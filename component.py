@@ -36,7 +36,7 @@ class Component(KBCEnvHandler):
         '''
         Main execution code
         '''
-        
+
         self.set_default_logger('DEBUG' if debug else 'INFO')
         logging.info('Loading configuration...')
         self.validateConfig()
@@ -59,13 +59,14 @@ class Component(KBCEnvHandler):
         index = 0
         for dataset in datasets:
             p_type = dataset.get('period_type')
-            logging.info('Downloading dataset %s in period %s - %s [%s]', dataset["dataset_type"],from_date,to_date,p_type )
+            logging.info(
+                'Downloading dataset %s in period %s - %s [%s]', dataset["dataset_type"], from_date, to_date, p_type)
             index += 1
             periods = gemius_srv.get_periods_in_interval(
                 from_date, to_date, p_type)
             if not periods:
                 logging.warning(
-                    'No periods [from:%from_date,to:%to_date] type:% found for [%p_type]')
+                    'No periods [from:%s,to:%s] type:%s', from_date, to_date, p_type)
                 continue
 
             res = self.retrieve_n_save_dataset(
@@ -75,6 +76,8 @@ class Component(KBCEnvHandler):
 
         logging.info('Building manifest files..')
         self._process_results(result_files, '')
+
+        logging.info('Extraction finished sucessfully!')
 
     def _process_results(self, res_files, output_bucket):
         for res in res_files:

@@ -116,7 +116,7 @@ class ExtractorService():
             #remove if empty
             if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
-                               'type': 'stats',
+                               'type': endpoint_name,
                                'name': os.path.basename(out_file.name),
                                'pkey': DEFAULT_DS_PKEY}]
             else:
@@ -207,21 +207,21 @@ class ExtractorService():
             # cleanup empty files, add metadata
             if traits:
                 res_files += [{'full_path': traits_path,
-                               'type': ENDPOINT_DEMOGRAPHY,
+                               'type': ENDPOINT_DEMOGRAPHY+"_traits",
                                'name': os.path.basename(traits_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:
                 os.remove(traits_path)
             if answers:
                 res_files += [{'full_path': answers_path,
-                               'type': ENDPOINT_DEMOGRAPHY,
+                               'type': ENDPOINT_DEMOGRAPHY+"_answers",
                                'name': os.path.basename(answers_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:
                 os.remove(answers_path)
             if defaults:
                 res_files += [{'full_path': defaults_path,
-                               'type': ENDPOINT_DEMOGRAPHY,
+                               'type': ENDPOINT_DEMOGRAPHY+"_defaults",
                                'name': os.path.basename(defaults_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:

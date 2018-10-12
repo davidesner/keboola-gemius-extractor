@@ -20,7 +20,7 @@ DEMOGRAPHY_TRAITS_HEADER = 'continuous\tid\tname'
 DEMOGRAPHY_ASNWERS_HEADER = 'id\tname\ttrait_id'
 DEMOGRAPHY_DFTS_HEADER = 'max\tmin\ttrait_id'
 
-DEFAULT_DS_PKEY = ['id', 'name', 'country',
+DEFAULT_DS_PKEY = ['id', 'country',
                    'begin_period', 'end_period', 'period_type']
 STATS_PKEY = ['geo_id', 'node_id', 'platform_id', 'target_group',
               'begin_period', 'end_period', 'period_type']
@@ -62,7 +62,7 @@ class ExtractorService():
             with open(file_path, 'w+', newline='', encoding='utf-8') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                self._get_n_write_ds_in_period_in_country(
+                self._get_n_write_ds_in_periods_in_country(
                     'stats', writer,  periods, country, append_headers, [country, str(filter_params)], **filter_params)
 
             # remove if empty
@@ -108,7 +108,7 @@ class ExtractorService():
             with open(file_path, 'w+', newline='', encoding='utf-8') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                self._get_n_write_ds_in_period_in_country(
+                self._get_n_write_ds_in_periods_in_country(
                     endpoint_name, writer,  periods, country, append_headers, [country])
 
             # remove if empty
@@ -139,7 +139,7 @@ class ExtractorService():
 
 #============== PRIVATE METHODS
 
-    def _get_n_write_ds_in_period_in_country(self, endpoint_name, writer, periods, country, append_headers, append_data, **additional_params):
+    def _get_n_write_ds_in_periods_in_country(self, endpoint_name, writer, periods, country, append_headers, append_data, **additional_params):
         write_header = True
         for period in periods.get(country):
             res = self.client.get_dataset_generic(
@@ -157,41 +157,39 @@ class ExtractorService():
 
         write_header = True
         res_files = []
-        for period in periods.get(country):
-            res = self.client.get_dataset_generic(
-                ENDPOINT_DEMOGRAPHY, period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], country, output_type='csv')
+                  # res file paths
+        traits_path = os.path.join(
+            output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'traits' + '-' + file_uid + '-' + country + '.csv')
+        answers_path = os.path.join(
+             output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'answers' + '-' + file_uid + '-' + country + '.csv')
+        defaults_path = os.path.join(
+             output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'defaults' + '-' + file_uid + '-' + country + '.csv')
 
-            traits = defaults = answers = False
-            # res file paths
-            traits_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'traits' + '-' + file_uid + '-' + country + '.csv')
-            answers_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'answers' + '-' + file_uid + '-' + country + '.csv')
-            defaults_path = os.path.join(
-                output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'defaults' + '-' + file_uid + '-' + country + '.csv')
-
-            # res file writers
-            with open(traits_path, 'w+', newline='', encoding='utf-8') as traits_f:
-                with open(answers_path, 'w+', newline='', encoding='utf-8')as answers_f:
-                    with open(defaults_path, 'w+', newline='', encoding='utf-8') as defaults_f:
-
-                        traits_writer = csv.writer(
-                            traits_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                        answers_writer = csv.writer(
-                            answers_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                        defaults_writer = csv.writer(
-                            defaults_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
+        traits = defaults = answers = False
+        # res file writers
+        with open(traits_path, 'w+', newline='', encoding='utf-8') as traits_f:
+            with open(answers_path, 'w+', newline='', encoding='utf-8')as answers_f:
+                with open(defaults_path, 'w+', newline='', encoding='utf-8') as defaults_f:
+                    traits_writer = csv.writer(
+                        traits_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    answers_writer = csv.writer(
+                        answers_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    defaults_writer = csv.writer(
+                        defaults_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    # iterate periods
+                    for period in periods.get(country):
+                        res = self.client.get_dataset_generic(
+                            ENDPOINT_DEMOGRAPHY, period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], country, output_type='csv')            
                         # split file by empty line
                         dem_files = res.text.split('\r\n\r\n')
-
+            
                         for line in dem_files:
                             if DEMOGRAPHY_TRAITS_HEADER in line:
                                 traits = True
                                 # traits
                                 self._write_ds_resp_in_period(
                                     line, traits_writer, period, append_headers, append_data, write_header)
-
+            
                             elif DEMOGRAPHY_ASNWERS_HEADER in line:
                                 answers = True
                                 # answers

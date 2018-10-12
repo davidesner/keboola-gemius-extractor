@@ -7,6 +7,7 @@ from kbc.env_handler import KBCEnvHandler
 from gemius.extractor_service import ExtractorService
 from gemius.client import Client
 import logging
+import collections
 
 import ast
 import csv
@@ -26,7 +27,7 @@ KEY_MAND_DATE_GROUP = [KEY_RELATIVE_PERIOD, KEY_MAND_PERIOD_GROUP]
 
 MANDATORY_PARS = [KEY_USER, KEY_PASS, KEY_DATASETS, KEY_MAND_DATE_GROUP]
 
-APP_VERSION = '0.1.3'
+APP_VERSION = '0.1.4'
 class Component(KBCEnvHandler):
 
     def __init__(self):
@@ -114,7 +115,7 @@ class Component(KBCEnvHandler):
 
     def retrieve_n_save_stats(self, dataset, periods, index, service):
         filters = dataset.get('filters')
-        filter_dict = {}
+        filter_dict = collections.OrderedDict()
         for f in filters:
             filter_dict.update(self._build_filter(f))
 

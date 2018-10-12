@@ -53,7 +53,7 @@ class ExtractorService():
         res_files = []
         country_list = periods.keys()
 
-        append_headers = ['country']
+        append_headers = ['country', 'filter']
 
         for country in country_list:
             file_path = os.path.join(
@@ -63,7 +63,7 @@ class ExtractorService():
                 writer = csv.writer(out_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 self._get_n_write_ds_in_period_in_country(
-                    'stats', writer,  periods, country, append_headers, [country], **filter_params)
+                    'stats', writer,  periods, country, append_headers, [country, str(filter_params)], **filter_params)
 
             # remove if empty
             if os.stat(out_file.name).st_size > 0:

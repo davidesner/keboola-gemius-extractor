@@ -9,7 +9,7 @@ import os
 import io
 
 
-PERIOD_HEADER = ['period_type', 'begin_period', 'end_period']
+PERIOD_HEADER = [ 'begin_period', 'end_period', 'period_type']
 
 KEY_PERIOD_BEGIN = 'begin'
 KEY_PERIOD_END = 'end'

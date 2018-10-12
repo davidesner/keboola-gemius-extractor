@@ -130,12 +130,12 @@ class ExtractorService():
 
         Returns -- list of result file paths
         '''
-
+        append_headers = ['country']
         country_list = periods.keys()
         res_files = []
         for country in country_list:
             res = self._get_n_write_demography_in_period_in_country(
-                output_folder_path, str(file_uid), periods, country, [], [country])
+                output_folder_path, str(file_uid), periods, country, append_headers, [country])
             res_files.extend(res)
         return res_files
 

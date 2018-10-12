@@ -9,7 +9,7 @@ import os
 import io
 
 
-PERIOD_HEADER = [ 'begin_period', 'end_period', 'period_type']
+PERIOD_HEADER = ['begin_period', 'end_period', 'period_type']
 
 KEY_PERIOD_BEGIN = 'begin'
 KEY_PERIOD_END = 'end'
@@ -64,10 +64,8 @@ class ExtractorService():
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 self._get_n_write_ds_in_period_in_country(
                     'stats', writer,  periods, country, append_headers, [country], **filter_params)
-                
-               
-            
-            #remove if empty
+
+            # remove if empty
             if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': 'stats',
@@ -75,7 +73,7 @@ class ExtractorService():
                                'pkey': STATS_PKEY}]
             else:
                 os.remove(out_file)
-        
+
         return res_files
 
     def get_periods_in_interval(self, begin=None, end=None, period_type='daily', country_list=None):
@@ -113,7 +111,7 @@ class ExtractorService():
                 self._get_n_write_ds_in_period_in_country(
                     endpoint_name, writer,  periods, country, append_headers, [country])
 
-            #remove if empty
+            # remove if empty
             if os.stat(out_file.name).st_size > 0:
                 res_files += [{'full_path': file_path,
                                'type': endpoint_name,
@@ -173,55 +171,59 @@ class ExtractorService():
                 output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'defaults' + '-' + file_uid + '-' + country + '.csv')
 
             # res file writers
-            traits_writer = csv.writer(open(traits_path, 'w+', newline=''), delimiter=',',
-                                       quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            answers_writer = csv.writer(open(answers_path, 'w+', newline=''), delimiter=',',
-                                        quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            defaults_writer = csv.writer(open(defaults_path, 'w+', newline=''), delimiter=',',
-                                         quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            with open(traits_path, 'w+', newline='') as traits_f:
+                with open(answers_path, 'w+', newline='')as answers_f:
+                    with open(defaults_path, 'w+', newline='') as defaults_f:
 
-            # split file by empty line
-            dem_files = res.text.split(os.linesep + os.linesep)
-            
-            for line in dem_files:
-                if DEMOGRAPHY_TRAITS_HEADER in line:
-                    traits = True
-                    # traits
-                    self._write_ds_resp_in_period(
-                        res.text, traits_writer, period, append_headers, append_data, write_header)
+                        traits_writer = csv.writer(
+                            traits_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                        answers_writer = csv.writer(
+                            answers_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                        defaults_writer = csv.writer(
+                            defaults_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                elif DEMOGRAPHY_ASNWERS_HEADER in line:
-                    answers = True
-                    # answers
-                    self._write_ds_resp_in_period(
-                        res.text, answers_writer, period, append_headers, append_data, write_header)
-                elif DEMOGRAPHY_DFTS_HEADER in line:
-                    defaults = True
-                    # defaults
-                    self._write_ds_resp_in_period(
-                        res.text, defaults_writer, period, append_headers, append_data, write_header)
-            write_header = False
+                        # split file by empty line
+                        dem_files = res.text.split(os.linesep + os.linesep)
 
-            del traits_writer, answers_writer, defaults_writer
+                        for line in dem_files:
+                            if DEMOGRAPHY_TRAITS_HEADER in line:
+                                traits = True
+                                # traits
+                                self._write_ds_resp_in_period(
+                                    line, traits_writer, period, append_headers, append_data, write_header)
+
+                            elif DEMOGRAPHY_ASNWERS_HEADER in line:
+                                answers = True
+                                # answers
+                                self._write_ds_resp_in_period(
+                                    line, answers_writer, period, append_headers, append_data, write_header)
+                            elif DEMOGRAPHY_DFTS_HEADER in line:
+                                defaults = True
+                                # defaults
+                                self._write_ds_resp_in_period(
+                                    line, defaults_writer, period, append_headers, append_data, write_header)
+                        write_header = False
+
+
 
             # cleanup empty files, add metadata
             if traits:
                 res_files += [{'full_path': traits_path,
-                               'type': ENDPOINT_DEMOGRAPHY+"_traits",
+                               'type': ENDPOINT_DEMOGRAPHY + "_traits",
                                'name': os.path.basename(traits_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:
                 os.remove(traits_path)
             if answers:
                 res_files += [{'full_path': answers_path,
-                               'type': ENDPOINT_DEMOGRAPHY+"_answers",
+                               'type': ENDPOINT_DEMOGRAPHY + "_answers",
                                'name': os.path.basename(answers_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:
                 os.remove(answers_path)
             if defaults:
                 res_files += [{'full_path': defaults_path,
-                               'type': ENDPOINT_DEMOGRAPHY+"_defaults",
+                               'type': ENDPOINT_DEMOGRAPHY + "_defaults",
                                'name': os.path.basename(defaults_path),
                                'pkey': DEFAULT_DS_PKEY}]
             else:

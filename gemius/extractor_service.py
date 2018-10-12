@@ -183,7 +183,7 @@ class ExtractorService():
                             defaults_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
                         # split file by empty line
-                        dem_files = res.text.split(os.linesep + os.linesep)
+                        dem_files = res.text.split('\r\n\r\n')
 
                         for line in dem_files:
                             if DEMOGRAPHY_TRAITS_HEADER in line:

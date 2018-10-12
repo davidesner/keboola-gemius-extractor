@@ -240,6 +240,7 @@ class ExtractorService():
                             delimiter='\t', quotechar='"')
         for row in reader:
             if write_header:
+                row = [col.replace('%','prc') for col in row]
                 writer.writerow(row + append_headers + PERIOD_HEADER)
                 write_header = False
                 continue

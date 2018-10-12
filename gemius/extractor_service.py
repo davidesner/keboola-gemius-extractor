@@ -84,7 +84,7 @@ class ExtractorService():
         '''
         Gets and saves specified dataset to output folder
 
-        endpoint_name -- name of endpoint (dataset)
+        endpoint_name -- name of endpoint (dataset) supported :[nodes, demography, trees, geos, platforms, metrics]
         output_folder_path -- 
         periods -- dictionary with periods (containing country spec) as returned by @self.get_periods_in_interval
         file_uid -- unique identifier to be added to the result file name 
@@ -157,7 +157,7 @@ class ExtractorService():
 
         write_header = True
         res_files = []
-                  # res file paths
+        # res file paths
         traits_path = os.path.join(
             output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'traits' + '-' + file_uid + '-' + country + '.csv')
         answers_path = os.path.join(
@@ -241,6 +241,8 @@ class ExtractorService():
                 row = [col.replace('%','prc') for col in row]
                 writer.writerow(row + append_headers + PERIOD_HEADER)
                 write_header = False
+                continue
+            else:
                 continue
 
             writer.writerow(

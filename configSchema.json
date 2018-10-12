@@ -38,7 +38,7 @@
 		"relative_period": {
 			"type": "string",
 			"title": "Relative period from now (utc)",
-			"description": "Relative period in format: '5 hours ago', 'yesterday','3 days ago', '4 months ago', '2 years ago', 'today'",
+			"description": "Relative period in format: '5 hours ago', 'yesterday','3 days ago', '4 months ago', '2 years ago', 'today'. Overrides `from` and `to` parameters.",
 			"propertyOrder": 450
 		},
 		"bucket": {

@@ -26,7 +26,7 @@ KEY_MAND_DATE_GROUP = [KEY_RELATIVE_PERIOD, KEY_MAND_PERIOD_GROUP]
 
 MANDATORY_PARS = [KEY_USER, KEY_PASS, KEY_DATASETS, KEY_MAND_DATE_GROUP]
 
-
+APP_VERSION = '0.1.1'
 class Component(KBCEnvHandler):
 
     def __init__(self):
@@ -36,8 +36,8 @@ class Component(KBCEnvHandler):
         '''
         Main execution code
         '''
-
         self.set_default_logger('DEBUG' if debug else 'INFO')
+        logging.info('Running version ' + APP_VERSION)
         logging.info('Loading configuration...')
         self.validateConfig()
 

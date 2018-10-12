@@ -9,6 +9,7 @@ import json
 import os
 import csv
 import pytz
+import sys
 from collections import Counter
 from keboola import docker
 import datetime
@@ -94,9 +95,14 @@ class KBCEnvHandler:
 #================================= Logging ====================================
 
     def set_default_logger(self, log_level = 'INFO'):
+        root = logging.getLogger()
+
+
+        hdl = logging.StreamHandler(sys.stdout)
         logging.basicConfig(
             level=log_level,
-            format='%(levelname)s - %(message)s')
+            format='%(levelname)s - %(message)s',
+            handlers = [hdl])
 
         logger = logging.getLogger()
         return logger

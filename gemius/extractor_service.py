@@ -236,15 +236,14 @@ class ExtractorService():
 
         reader = csv.reader(io.StringIO(csv_data),
                             delimiter='\t', quotechar='"')
+        if not write_header:
+            next(reader)
         for row in reader:
             if write_header:
                 row = [col.replace('%','prc') for col in row]
                 writer.writerow(row + append_headers + PERIOD_HEADER)
                 write_header = False
-                continue
             else:
-                continue
-
-            writer.writerow(
-                row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])
+                writer.writerow(
+                    row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])    
         return True

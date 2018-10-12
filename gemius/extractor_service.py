@@ -59,7 +59,7 @@ class ExtractorService():
             file_path = os.path.join(
                 output_folder_path, 'stats' + '-' + str(file_uid) + '-' + country + '.csv')
 
-            with open(file_path, 'w+', newline='') as out_file:
+            with open(file_path, 'w+', newline='', encoding='utf-8') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 self._get_n_write_ds_in_period_in_country(
@@ -105,7 +105,7 @@ class ExtractorService():
             file_path = os.path.join(
                 output_folder_path, endpoint_name + '-' + str(file_uid) + country + '.csv')
 
-            with open(file_path, 'w+', newline='') as out_file:
+            with open(file_path, 'w+', newline='', encoding='utf-8') as out_file:
                 writer = csv.writer(out_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 self._get_n_write_ds_in_period_in_country(
@@ -171,9 +171,9 @@ class ExtractorService():
                 output_folder_path, ENDPOINT_DEMOGRAPHY + '-' + 'defaults' + '-' + file_uid + '-' + country + '.csv')
 
             # res file writers
-            with open(traits_path, 'w+', newline='') as traits_f:
-                with open(answers_path, 'w+', newline='')as answers_f:
-                    with open(defaults_path, 'w+', newline='') as defaults_f:
+            with open(traits_path, 'w+', newline='', encoding='utf-8') as traits_f:
+                with open(answers_path, 'w+', newline='', encoding='utf-8')as answers_f:
+                    with open(defaults_path, 'w+', newline='', encoding='utf-8') as defaults_f:
 
                         traits_writer = csv.writer(
                             traits_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)

@@ -110,7 +110,7 @@ class Client(HttpClientBase):
 
         '''
         url = DEAFULT_V1_BASE + ENDPOINT_STATS
-        strict = True
+        strict = False
         multi_params = {}
         multi_params.update({'geo': additional_params.pop('geo', {})})
         multi_params.update(

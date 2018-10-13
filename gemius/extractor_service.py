@@ -7,6 +7,7 @@ Created on 9. 10. 2018
 import csv
 import os
 import io
+import pandas as pd
 
 
 PERIOD_HEADER = ['begin_period', 'end_period', 'period_type']
@@ -31,10 +32,11 @@ class ExtractorService():
     def __init__(self, client):
         self.client = client
 
-    def get_n_save_stats_in_available_periods(self, output_folder_path, file_uid, periods, **filter_params):
+    def get_n_save_stats_in_available_periods(self, output_folder_path, file_uid, periods, metrics, **filter_params):
         '''
         Get stats data and save to specified folder
         :param output_folder_path: output folder to save result file
+        :param metrics: list of metric columns to expect in form [name] - names must match exactly the names of columns in filter
         :param file_uid: unique identifier to be added to the result file name 
                     so there are no conflicts when iterating multiple_times with different settings (content agnostic)
         :param country: Optional country.
@@ -54,16 +56,24 @@ class ExtractorService():
         country_list = periods.keys()
 
         append_headers = ['country', 'filter']
+        
+        # clean metric names
+        header_cleaned = [col['name'].replace('%','prc') for col in metrics] + ['country', 'filter']
 
         for country in country_list:
+            #build additional data
+            append_data = {'country' : country, 
+                       'filter' : str(filter_params)}
+        
             file_path = os.path.join(
                 output_folder_path, 'stats' + '-' + str(file_uid) + '-' + country + '.csv')
 
             with open(file_path, 'w+', newline='', encoding='utf-8') as out_file:
-                writer = csv.writer(out_file, delimiter=',',
-                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                writer = csv.DictWriter(out_file, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=header_cleaned, extrasaction='ignore')
+
                 self._get_n_write_ds_in_periods_in_country(
-                    'stats', writer,  periods, country, append_headers, [country, str(filter_params)], **filter_params)
+                    'stats', writer,  periods, country, append_headers, append_data, type_ = 'Stats', **filter_params)
 
             # remove if empty
             if os.stat(out_file.name).st_size > 0:
@@ -80,6 +90,31 @@ class ExtractorService():
         return self.client.get_all_available_periods(
             begin, end, period_type, country_list)
 
+    def get_unique_available_metrics_in_periods(self, periods, metric_ids = None):
+        country_list = periods.keys()
+            
+        resdf = None
+        
+        for country in country_list:
+            for period in periods.get(country):
+                res = self.client.get_standard_dataset('metrics', begin_period = period[KEY_PERIOD_BEGIN], end_period = period[KEY_PERIOD_END], output_type = 'csv')
+                if resdf is None:
+                    resdf = pd.read_table(io.BytesIO(res.content))
+                else:
+                    resdf.append(pd.read_table(io.BytesIO(res.content)))
+
+        resdf = resdf[['id','name']].drop_duplicates()
+
+        if metric_ids:
+            s = pd.Series(metric_ids, name='id')
+            resdf = resdf[resdf['id'].isin(metric_ids)]
+            if not s.isin(resdf['id']):
+                raise ValueError('Some metric IDs are not valid! {}')
+                
+            
+        return resdf.to_dict('records')
+            
+    
     def get_n_save_dataset_in_available_periods(self, endpoint_name, output_folder_path, file_uid, periods):
         '''
         Gets and saves specified dataset to output folder
@@ -139,14 +174,19 @@ class ExtractorService():
 
 #============== PRIVATE METHODS
 
-    def _get_n_write_ds_in_periods_in_country(self, endpoint_name, writer, periods, country, append_headers, append_data, **additional_params):
+    def _get_n_write_ds_in_periods_in_country(self, endpoint_name, writer, periods, country, append_headers, append_data, type_ = 'Standard', **additional_params):
         write_header = True
         for period in periods.get(country):
             res = self.client.get_dataset_generic(
                 endpoint_name, period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], country, output_type='csv', **additional_params)
+            
+            # use stats writer
+            if type_ == 'Stats':
+                self._write_stats_resp_in_period(res.text, writer, period, append_data, write_header)
+            else:
+                self._write_ds_resp_in_period(res.text, writer, period, append_headers, append_data, write_header)
 
-            self._write_ds_resp_in_period(
-                res.text, writer, period, append_headers, append_data, write_header)
+            
             write_header = False
         return True
 
@@ -236,14 +276,36 @@ class ExtractorService():
 
         reader = csv.reader(io.StringIO(csv_data),
                             delimiter='\t', quotechar='"')
+
         if not write_header:
-            next(reader)
+                next(reader)
         for row in reader:
             if write_header:
-                row = [col.replace('%','prc') for col in row]
-                writer.writerow(row + append_headers + PERIOD_HEADER)
-                write_header = False
+                    row = [col.replace('%', 'prc') for col in row]
+                    writer.writerow(row + append_headers + PERIOD_HEADER)
+                    write_header = False
             else:
-                writer.writerow(
-                    row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])    
+                    writer.writerow(
+                        row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])
+
         return True
+    
+    
+    def _write_stats_resp_in_period(self, csv_data, writer, period, append_data, write_header):
+        reader = csv.DictReader(io.StringIO(csv_data),
+                            delimiter='\t', quotechar='"')
+        if write_header:
+            writer.writeheader()
+        
+        period_data = {'begin_period' : period[KEY_PERIOD_BEGIN],
+            'end_period' : period[KEY_PERIOD_END],
+            'period_type' : period[KEY_PERIOD_TYPE]}
+        
+        
+        for row in reader:
+            row.update(period_data)
+            row.update(append_data)
+            writer.writerow(row)
+        
+        return True
+        

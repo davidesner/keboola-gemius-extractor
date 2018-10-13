@@ -57,7 +57,7 @@ class HttpClientBase:
             r.raise_for_status()
         except requests.HTTPError:
             # Handle different error codes
-            raise
+            raise Exception('Request failed with code: {}, message: {}'.format(r.status_code, r.text))
         else:
             return r
     

@@ -81,7 +81,7 @@
 						},
 						"type": "string",
 						"title": "Dataset type",
-						"description": "Type of dataset to download. Either one of the dimensions or the fact table stats.",
+						"description": "Type of dataset to download. Either one of the dimensions or the fact table stats. NOTE that 'metric' filter needs to be specified in case of STATS (Fact) dataset.",
 						"default": "stats",
 						"propertyOrder": 1000
 					},
@@ -112,11 +112,11 @@
 							"properties": {
 								"filter": {
 									"enum": [
-										"geos",
-										"platforms",
-										"metrics",
-										"nodes",
-										"demography"
+										"geo",
+										"platform",
+										"metric",
+										"node",
+										"target"
 									],
 									"type": "string",
 									"title": "Filter Type",

@@ -27,7 +27,7 @@ KEY_MAND_DATE_GROUP = [KEY_RELATIVE_PERIOD, KEY_MAND_PERIOD_GROUP]
 
 MANDATORY_PARS = [KEY_USER, KEY_PASS, KEY_DATASETS, KEY_MAND_DATE_GROUP]
 
-APP_VERSION = '0.1.7'
+APP_VERSION = '0.2.0'
 class Component(KBCEnvHandler):
 
     def __init__(self):
@@ -116,11 +116,42 @@ class Component(KBCEnvHandler):
     def retrieve_n_save_stats(self, dataset, periods, index, service):
         filters = dataset.get('filters')
         filter_dict = collections.OrderedDict()
-        for f in filters:
+        met_filter = None
+        for f in filters:            
             filter_dict.update(self._build_filter(f))
+            if f['filter'] == 'metric':
+                met_filter = f
+        
+        if not met_filter:
+            raise ValueError('Metrics must be defined for Stats dataset!!')
 
-        return service.get_n_save_stats_in_available_periods(self.tables_out_path, index, periods, **filter_dict)
+        metrics = self._get_metrics(met_filter)
+        #all_periods = service.get_periods_in_interval(begin = None, end = None, period_type =None)
+        
+        #res = service.get_unique_available_metrics_in_periods(all_periods, filter_dict.get('metric'))
+        
+        
+        return service.get_n_save_stats_in_available_periods(self.tables_out_path, index, periods, metrics, **filter_dict)
 
+    def _get_metrics(self, met_filter):
+        src = met_filter.get('source_table')
+        
+        
+        if src.startswith('['):
+            # is manually entered
+            values = [{'id':v, 'name': 'N/A'} for v in ast.literal_eval(src)]
+            
+        else:
+            # is from table
+            table = super().get_input_table_by_name(src)
+
+            with open(table['full_path'], 'r') as input_:
+                reader = csv.reader(input_)
+                next(reader)
+                values = [{'id':row[0], 'name':row[1]} for row in reader]
+
+        return values
+    
     def _build_filter(self, filter_):
         key = filter_.get('filter')
         src = filter_.get('source_table')
@@ -143,6 +174,7 @@ class Component(KBCEnvHandler):
             values = [row[0] for row in reader]
 
         return values
+
 
 
 """

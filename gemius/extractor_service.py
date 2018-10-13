@@ -21,6 +21,8 @@ DEMOGRAPHY_TRAITS_HEADER = 'continuous\tid\tname'
 DEMOGRAPHY_ASNWERS_HEADER = 'id\tname\ttrait_id'
 DEMOGRAPHY_DFTS_HEADER = 'max\tmin\ttrait_id'
 
+STATS_BASE_HEADER = ['geo_id','node_id','platform_id','target_group']
+
 DEFAULT_DS_PKEY = ['id', 'country',
                    'begin_period', 'end_period', 'period_type']
 STATS_PKEY = ['geo_id', 'node_id', 'platform_id', 'target_group',
@@ -58,7 +60,7 @@ class ExtractorService():
         append_headers = ['country', 'filter']
         
         # clean metric names
-        header_cleaned = [col['name'].replace('%','prc') for col in metrics] + ['country', 'filter']
+        header_cleaned = [col['name'].replace('%','prc') for col in metrics] + append_headers + STATS_BASE_HEADER
 
         for country in country_list:
             #build additional data

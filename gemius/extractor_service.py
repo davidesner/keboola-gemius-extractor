@@ -278,21 +278,25 @@ class ExtractorService():
                             delimiter='\t', quotechar='"')
 
         if not write_header:
-                next(reader)
+            next(reader)
         for row in reader:
             if write_header:
-                    row = [col.replace('%', 'prc') for col in row]
-                    writer.writerow(row + append_headers + PERIOD_HEADER)
-                    write_header = False
+                row = [col.replace('%', 'prc') for col in row]
+                writer.writerow(row + append_headers + PERIOD_HEADER)
+                write_header = False
             else:
-                    writer.writerow(
-                        row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])
+                writer.writerow(
+                    row + append_data + [period[KEY_PERIOD_BEGIN], period[KEY_PERIOD_END], period[KEY_PERIOD_TYPE]])
 
         return True
     
     
     def _write_stats_resp_in_period(self, csv_data, writer, period, append_data, write_header):
-        reader = csv.DictReader(io.StringIO(csv_data),
+        # clean header
+        split_resp = csv_data.splitlines()
+        split_resp[0] =split_resp[0] .replace('%', 'prc')
+
+        reader = csv.DictReader(io.StringIO(os.linesep.join(split_resp)),
                             delimiter='\t', quotechar='"')
         if write_header:
             writer.writeheader()

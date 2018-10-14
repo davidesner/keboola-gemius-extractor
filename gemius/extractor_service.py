@@ -60,7 +60,7 @@ class ExtractorService():
         append_headers = ['country', 'filter']
         
         # clean metric names
-        header_cleaned = [col['name'].replace('%','prc') for col in metrics] + append_headers + STATS_BASE_HEADER
+        header_cleaned = [col['name'].replace('%','prc') for col in metrics] + append_headers + STATS_BASE_HEADER + PERIOD_HEADER
 
         for country in country_list:
             #build additional data

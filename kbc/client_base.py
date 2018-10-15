@@ -4,6 +4,8 @@ Created on 5. 10. 2018
 @author: esner
 '''
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import json
 
 
@@ -15,7 +17,7 @@ class HttpClientBase:
         base_url (str): The base URL for this endpoint.
     """
 
-    def __init__(self, base_url, default_http_header=[]):
+    def __init__(self, base_url, max_retries = 10, backoff_factor = 0.3, status_forcelist = (500, 502, 504), default_http_header=[]):
         """
         Create an endpoint.
 
@@ -26,9 +28,25 @@ class HttpClientBase:
         if not base_url:
             raise ValueError("Base URL is required.")
         self.base_url = base_url
-        
+        self.max_retries = max_retries
+        self.backoff_factor = backoff_factor
+        self.status_forcelist = status_forcelist
+
         self._auth_header = default_http_header
 
+    def requests_retry_session(self, session=None):
+        session = session or requests.Session()
+        retry = Retry(
+            total=self.max_retries,
+            read=self.max_retries,
+            connect=self.max_retries,
+            backoff_factor=self.backoff_factor,
+            status_forcelist=self.status_forcelist
+            )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        return session
 
 
     def _get_raw(self, url, params=None, **kwargs):
@@ -49,10 +67,12 @@ class HttpClientBase:
         Raises:
             requests.HTTPError: If the API request fails.
         """
+        s = requests.Session()
+        
         headers = kwargs.pop('headers', {})
         headers.update(self._auth_header)
-
-        r = requests.get(url, params, headers=headers, **kwargs)
+        s.headers.update(headers)
+        r = self.requests_retry_session(session=s).request('GET', url = url, params = params, **kwargs)
         try:
             r.raise_for_status()
         except requests.HTTPError:
@@ -80,9 +100,11 @@ class HttpClientBase:
         Raises:
             requests.HTTPError: If the API request fails.
         """
+        s = requests.Session()
         headers = kwargs.pop('headers', {})
         headers.update(self._auth_header)
-        r = requests.post(headers=headers, *args, **kwargs)
+        s.headers.update(headers)
+        r = self.requests_retry_session(session=s).request('POST', *args, **kwargs)
         try:
             r.raise_for_status()
         except requests.HTTPError:
@@ -106,9 +128,10 @@ class HttpClientBase:
         Raises:
             requests.HTTPError: If the API request fails.
         """
+        s = requests.Session()
         headers = kwargs.pop('headers', {})
         headers.update(self._auth_header)
-        r = requests.post(headers=headers, *args, **kwargs)
+        r = self.requests_retry_session(session=s).request('POST', headers=headers, *args, **kwargs)
         try:
             r.raise_for_status()
         except requests.HTTPError:

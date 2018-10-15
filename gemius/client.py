@@ -5,6 +5,7 @@ Created on 5. 10. 2018
 '''
 import logging
 import requests
+
 import pandas as pd
 from io import StringIO
 from io import BytesIO
@@ -34,6 +35,8 @@ class Client(HttpClientBase):
         self.password = password
         self.session = self.login()
         self.session_param = {'session': self.session}
+
+
 
     def login(self):
         params = {'login': self.user, 'password': self.password}

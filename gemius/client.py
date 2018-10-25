@@ -86,7 +86,7 @@ class Client(HttpClientBase):
         return periods_result
 
     def _filter_period(self, period_df, country, period_type = None):
-        if not period_type:
+        if not period_type or period_type=='all':
             return period_df.loc[(period_df['country'] == country), ['begin', 'end', 'period type']].to_dict('records')
         else:
             return period_df.loc[(period_df['country'] == country) &

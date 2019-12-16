@@ -26,7 +26,10 @@ STATS_BASE_HEADER = ['geo_id', 'node_id', 'platform_id', 'target_group']
 DEFAULT_DS_PKEY = ['id', 'country',
                    'begin_period', 'end_period', 'period_type']
 # endpoint specific pkeys
-DS_PKEYS = {"nodes": DEFAULT_DS_PKEY + 'parent_id'}
+DS_PKEYS = {"nodes": DEFAULT_DS_PKEY + ['parent_id'],
+            "geos": DEFAULT_DS_PKEY + ['parent_id'],
+            "platforms": DEFAULT_DS_PKEY + ['parent_id']
+            }
 STATS_PKEY = ['geo_id', 'node_id', 'platform_id', 'target_group',
               'begin_period', 'end_period', 'period_type']
 

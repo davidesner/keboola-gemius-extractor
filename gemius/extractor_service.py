@@ -40,7 +40,7 @@ class ExtractorService():
         self.client = client
 
     def _get_ds_pkey(self, ds_type):
-        if DS_PKEYS.get(DS_PKEYS):
+        if DS_PKEYS.get(ds_type):
             return DS_PKEYS[ds_type]
         else:
             return DEFAULT_DS_PKEY

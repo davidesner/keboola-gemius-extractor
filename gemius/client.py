@@ -4,11 +4,10 @@ Created on 5. 10. 2018
 @author: esner
 '''
 import logging
-import requests
+from io import BytesIO
 
 import pandas as pd
-from io import StringIO
-from io import BytesIO
+import requests
 
 from kbc.client_base import HttpClientBase
 
@@ -35,8 +34,6 @@ class Client(HttpClientBase):
         self.password = password
         self.session = self.login()
         self.session_param = {'session': self.session}
-
-
 
     def login(self):
         params = {'login': self.user, 'password': self.password}
@@ -71,7 +68,7 @@ class Client(HttpClientBase):
             available_periods_raw.content), infer_datetime_format=True, parse_dates=['begin', 'end'])
 
         if begin and end:
-            date_periods_df = date_periods_df[(date_periods_df['begin'] >= begin) & (date_periods_df['begin'] < end)]                
+            date_periods_df = date_periods_df[(date_periods_df['begin'] >= begin) & (date_periods_df['begin'] < end)]
 
         if country_list and country_list[0] is not None:
             date_periods_df = date_periods_df[date_periods_df['country']
@@ -83,14 +80,21 @@ class Client(HttpClientBase):
             # API filter not working, filter period type in code
             periods_result[country] = self._filter_period(date_periods_df, country, period_type)
 
+        # convert to string
+        for k in periods_result:
+            for periods in periods_result[k]:
+                periods['begin'] = periods['begin'].strftime('%Y-%m-%d')
+                periods['end'] = periods['end'].strftime('%Y-%m-%d')
+
         return periods_result
 
-    def _filter_period(self, period_df, country, period_type = None):
-        if not period_type or period_type=='all':
+    def _filter_period(self, period_df, country, period_type=None):
+        if not period_type or period_type == 'all':
             return period_df.loc[(period_df['country'] == country), ['begin', 'end', 'period type']].to_dict('records')
         else:
             return period_df.loc[(period_df['country'] == country) &
-                                                          (period_df['period type'] == period_type), ['begin', 'end', 'period type']].to_dict('records')
+                                 (period_df['period type'] == period_type), ['begin', 'end', 'period type']].to_dict(
+                'records')
 
     def get_stats_data(self, begin_period=None, end_period=None, country=None, output_type=None, **additional_params):
         '''
@@ -100,14 +104,19 @@ class Client(HttpClientBase):
         :param end_period: Optional end of end period.
         :param country: Optional country.
         :param output_type: Optional 'json' or 'csv'.
-        :param geo List of selected geolocation ids. Optional. When missing, statistics are listed for all possible values. .
-        :param platform  List of selected platform. Optional. When missing, statistics are listed for all possible values. 
-        :param node  List of selected node ids. Optional. When missing, statistics are listed for all possible values. 
-        :param metric  List of selected selected metric. Optional. When missing, values for all metrics are shown. 
-        :param target  List of  selected target group. Optional. When missing, statistics are listed for target group "Population". 
+        :param geo List of selected geolocation ids. Optional. When missing, statistics are listed for all possible
+        values. .
+        :param platform  List of selected platform. Optional. When missing, statistics are listed for all possible
+        values.
+        :param node  List of selected node ids. Optional. When missing, statistics are listed for all possible values.
+        :param metric  List of selected selected metric. Optional. When missing, values for all metrics are shown.
+        :param target  List of  selected target group. Optional. When missing, statistics are listed for target group
+        "Population".
                         One target group is described by string with two parts separated by semicolon (';'):
-                        [name] - name of target group. It will be shown in results. Optional. When missing, definition will be used.
-                        definition - definition of target group in form of equalities: {trait}={value} joined by and (logical and) or or (logical or).
+                        [name] - name of target group. It will be shown in results. Optional. When missing,
+                        definition will be used.
+                        definition - definition of target group in form of equalities: {trait}={value} joined by and
+                        (logical and) or or (logical or).
         :return: :class:`Response <Response>` object or 'OrderedDictionary'
 
         :rtype: requests.Response if output_type == 'csv' else JSON dictionary
@@ -146,14 +155,14 @@ class Client(HttpClientBase):
             return date_obj.strftime("%Y-%m-%d")
 
     def _build_params_with_duplicate_keys(self, params_dict, params_lists_dict):
-        
+
         # single params
         single_param_string = '&'.join([key + '=' + str(params_dict[key])
-                                  for key in params_dict.keys() if params_dict[key] is not None])
+                                        for key in params_dict.keys() if params_dict[key] is not None])
 
         multi_param_string = '&'.join([self._build_multi_param_string(key, params_lists_dict[key])
-                                  for key in params_lists_dict.keys() if params_lists_dict[key]
-                                  ])
+                                       for key in params_lists_dict.keys() if params_lists_dict[key]
+                                       ])
         param_string = '&'.join([single_param_string, multi_param_string])
         return param_string.encode('utf-8')
 
@@ -182,7 +191,8 @@ class Client(HttpClientBase):
         else:
             return self._get_raw(url, params)
 
-    def get_dataset_generic(self, endpoint_name, begin_period=None, end_period=None, country=None, output_type=None, **additional_params):
+    def get_dataset_generic(self, endpoint_name, begin_period=None, end_period=None, country=None, output_type=None,
+                            **additional_params):
         '''
         generic get specified dataset
 

@@ -3,16 +3,15 @@ Created on 10. 10. 2018
 
 @author: esner
 '''
-from kbc.env_handler import KBCEnvHandler
-from gemius.extractor_service import ExtractorService
-from gemius.client import Client
-import logging
-import collections
-
 import ast
+import collections
 import csv
-
+import logging
 from datetime import datetime
+
+from gemius.client import Client
+from gemius.extractor_service import ExtractorService
+from kbc.env_handler import KBCEnvHandler
 
 KEY_USER = 'user'
 KEY_PASS = '#pass'
@@ -24,10 +23,11 @@ KEY_DATASETS = 'datasets'
 KEY_MAND_PERIOD_GROUP = [KEY_PERIOD_FROM, KEY_PERIOD_TO]
 KEY_MAND_DATE_GROUP = [KEY_RELATIVE_PERIOD, KEY_MAND_PERIOD_GROUP]
 
-
 MANDATORY_PARS = [KEY_USER, KEY_PASS, KEY_DATASETS, KEY_MAND_DATE_GROUP]
 
 APP_VERSION = '0.2.3'
+
+
 class Component(KBCEnvHandler):
 
     def __init__(self):
@@ -49,7 +49,7 @@ class Component(KBCEnvHandler):
             to_date = params.get(KEY_PERIOD_TO)
         else:
             from_date = super().get_past_date(params.get(KEY_RELATIVE_PERIOD))
-            to_date = datetime.utcnow()
+            to_date = datetime.utcnow().strftime('%Y-%m-%d')
 
         gemius_srv = ExtractorService(
             Client(params.get(KEY_USER), params.get(KEY_PASS)))
@@ -117,30 +117,29 @@ class Component(KBCEnvHandler):
         filters = dataset.get('filters')
         filter_dict = collections.OrderedDict()
         met_filter = None
-        for f in filters:            
+        for f in filters:
             filter_dict.update(self._build_filter(f))
             if f['filter'] == 'metric':
                 met_filter = f
-        
+
         if not met_filter:
             raise ValueError('Metrics must be defined for Stats dataset!!')
 
         metrics = self._get_metrics(met_filter)
-        #all_periods = service.get_periods_in_interval(begin = None, end = None, period_type =None)
-        
-        #res = service.get_unique_available_metrics_in_periods(all_periods, filter_dict.get('metric'))
-        
-        
-        return service.get_n_save_stats_in_available_periods(self.tables_out_path, index, periods, metrics, **filter_dict)
+        # all_periods = service.get_periods_in_interval(begin = None, end = None, period_type =None)
+
+        # res = service.get_unique_available_metrics_in_periods(all_periods, filter_dict.get('metric'))
+
+        return service.get_n_save_stats_in_available_periods(self.tables_out_path, index, periods, metrics,
+                                                             **filter_dict)
 
     def _get_metrics(self, met_filter):
         src = met_filter.get('source_table')
-        
-        
+
         if src.startswith('['):
             # is manually entered
-            values = [{'id':v, 'name': 'N/A'} for v in ast.literal_eval(src)]
-            
+            values = [{'id': v, 'name': 'N/A'} for v in ast.literal_eval(src)]
+
         else:
             # is from table
             table = super().get_input_table_by_name(src)
@@ -148,10 +147,10 @@ class Component(KBCEnvHandler):
             with open(table['full_path'], 'r') as input_:
                 reader = csv.reader(input_)
                 next(reader)
-                values = [{'id':row[0], 'name':row[1]} for row in reader]
+                values = [{'id': row[0], 'name': row[1]} for row in reader]
 
         return values
-    
+
     def _build_filter(self, filter_):
         key = filter_.get('filter')
         src = filter_.get('source_table')
@@ -174,7 +173,6 @@ class Component(KBCEnvHandler):
             values = [row[0] for row in reader]
 
         return values
-
 
 
 """

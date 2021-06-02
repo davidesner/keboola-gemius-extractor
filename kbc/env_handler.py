@@ -26,7 +26,7 @@ class KBCEnvHandler:
             data_path = os.environ.get('KBC_DATADIR')
 
         self.kbc_config_id = os.environ.get('KBC_CONFIGID')
-        
+
         self.data_path = data_path
         self.configuration = docker.Config(data_path)
         self.cfg_params = self.configuration.get_parameters()
@@ -47,7 +47,7 @@ class KBCEnvHandler:
         missing_fields = []
         for field in self._mandatory_params:
             if isinstance(field, list):
-                missing_fields.extend(self._validate_par_group(field))            
+                missing_fields.extend(self._validate_par_group(field))
             elif not parameters.get(field):
                 missing_fields.append(field)
 
@@ -64,8 +64,8 @@ class KBCEnvHandler:
                 missing_fields.extend(missing_subset)
                 if not missing_subset:
                     is_present = True
-                    
-            elif self.cfg_params.get(par):                
+
+            elif self.cfg_params.get(par):
                 is_present = True
             else:
                 missing_fields.append(par)
@@ -73,7 +73,7 @@ class KBCEnvHandler:
             return missing_fields
         else:
             return []
-    
+
     def _get_par_missing_fields(self, mand_params):
         parameters = self.cfg_params
         missing_fields = []
@@ -81,10 +81,10 @@ class KBCEnvHandler:
            if not parameters.get(field):
                 missing_fields.append(field)
         return missing_fields
-    
-    
-    
-    
+
+
+
+
     def get_input_table_by_name(self, table_name):
         tables = self.configuration.get_input_tables()
         table = [t for t in tables if t.get('destination') == table_name]
@@ -200,7 +200,7 @@ class KBCEnvHandler:
     def get_past_date(self, str_days_ago, tz = pytz.utc):
         '''
         Returns date in specified timezone relative to today.
-        
+
         e.g.
         '5 hours ago',
         'yesterday',
@@ -209,29 +209,29 @@ class KBCEnvHandler:
         '2 years ago',
         'today'
         '''
-        
+
         TODAY = datetime.datetime.now(tz)
         splitted = str_days_ago.split()
         if len(splitted) == 1 and splitted[0].lower() == 'today':
-            return str(TODAY.isoformat())
+            return str(TODAY.strftime('%Y-%m-%d'))
         elif len(splitted) == 1 and splitted[0].lower() == 'yesterday':
             date = TODAY - relativedelta(days=1)
-            return str(date.isoformat())
+            return str(date.strftime('%Y-%m-%d'))
         elif splitted[1].lower() in ['hour', 'hours', 'hr', 'hrs', 'h']:
             date = datetime.datetime.now() - relativedelta(hours=int(splitted[0]))
-            return str(date.date().isoformat())
+            return str(date.date().strftime('%Y-%m-%d'))
         elif splitted[1].lower() in ['day', 'days', 'd']:
             date = TODAY - relativedelta(days=int(splitted[0]))
-            return str(date.isoformat())
+            return str(date.strftime('%Y-%m-%d'))
         elif splitted[1].lower() in ['wk', 'wks', 'week', 'weeks', 'w']:
             date = TODAY - relativedelta(weeks=int(splitted[0]))
-            return str(date.isoformat())
+            return str(date.strftime('%Y-%m-%d'))
         elif splitted[1].lower() in ['mon', 'mons', 'month', 'months', 'm']:
             date = TODAY - relativedelta(months=int(splitted[0]))
-            return str(date.isoformat())
+            return str(date.strftime('%Y-%m-%d'))
         elif splitted[1].lower() in ['yrs', 'yr', 'years', 'year', 'y']:
             date = TODAY - relativedelta(years=int(splitted[0]))
-            return date.isoformat()
+            return date.strftime('%Y-%m-%d')
         else:
             raise ValueError('Invalid relative period!')
 
